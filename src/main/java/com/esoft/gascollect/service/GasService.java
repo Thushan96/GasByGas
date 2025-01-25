@@ -48,12 +48,30 @@ public class GasService {
     }
 
     public GasDTO updateGas(int id, GasDTO gasDTO) {
+        // Find the existing Gas by ID
         Gas gas = gasRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Gas not found with id: " + id));
-        BeanUtils.copyProperties(gasDTO, gas, "id");
+
+        if (gasDTO.getCapacity() != 0) {
+            gas.setCapacity(gasDTO.getCapacity());
+        }
+        if (gasDTO.getPrice() != 0) {
+            gas.setPrice(gasDTO.getPrice());
+        }
+        if (gasDTO.getStock() != 0) {
+            gas.setStock(gasDTO.getStock());
+        }
+
+        // Save the updated Gas
         Gas updatedGas = gasRepository.save(gas);
+
+        // Convert the updated Gas to a DTO and return it
         GasDTO updatedGasDTO = new GasDTO();
-        BeanUtils.copyProperties(updatedGas, updatedGasDTO);
+        updatedGasDTO.setId(updatedGas.getId());
+        updatedGasDTO.setCapacity(updatedGas.getCapacity());
+        updatedGasDTO.setPrice(updatedGas.getPrice());
+        updatedGasDTO.setStock(updatedGas.getStock());
+
         return updatedGasDTO;
     }
 

@@ -123,53 +123,64 @@ public class UserService {
     public Optional<UserDTO> updateUser(int id, UserDTO userDTO) {
         log.info("Updating user with ID: {}", id);
 
+        // Check permissions (if applicable)
         String username = getAuthenticatedUser();
         if (username != null && hasAccessToUser(id, username)) {
             log.warn("User {} does not have permission to update user ID {}", username, id);
             return Optional.empty();
         }
 
-        if (userRepository.existsById(id)) {
-            log.debug("User exists. Proceeding with update.");
-            Set<Role> roles = new HashSet<>();
-            if (userDTO.getRoles() != null) {
-                for (String roleName : userDTO.getRoles()) {
-                    Role role = new Role();
-                    role.setName(roleName);
-                    roles.add(role);
-                }
-            }
-
-            Optional<User> existingUserOpt = userRepository.findById(id);
-            if (existingUserOpt.isPresent()) {
-                User existingUser = existingUserOpt.get();
-                String encodedPassword = (userDTO.getPassword() != null) ?
-                        passwordEncoder.encode(userDTO.getPassword()) : existingUser.getPassword();
-
-                User user = new User(
-                        id,
-                        userDTO.getName(),
-                        userDTO.getContactNo(),
-                        encodedPassword,
-                        roles
-                );
-                User updatedUser = userRepository.save(user);
-                log.info("User updated successfully: {}", updatedUser);
-                return Optional.of(new UserDTO(
-                        updatedUser.getId(),
-                        updatedUser.getName(),
-                        updatedUser.getEmail(),
-                        updatedUser.getContactNo(),
-                        null,
-                        roles.stream().map(Role::getName).collect(Collectors.toSet())
-                ));
-            }
+        // Check if the user exists
+        if (!userRepository.existsById(id)) {
+            log.warn("User with ID {} not found. Update aborted.", id);
+            return Optional.empty();
         }
 
-        log.warn("User with ID {} not found. Update aborted.", id);
-        return Optional.empty();
-    }
+        // Fetch the existing user
+        Optional<User> existingUserOpt = userRepository.findById(id);
+        if (!existingUserOpt.isPresent()) {
+            log.warn("User with ID {} not found. Update aborted.", id);
+            return Optional.empty();
+        }
 
+        User existingUser = existingUserOpt.get();
+
+        // Update fields only if they are provided in the DTO
+        if (userDTO.getName() != null) {
+            existingUser.setName(userDTO.getName());
+        }
+        if (userDTO.getContactNo()!=0) {
+            existingUser.setContactNo(userDTO.getContactNo());
+        }
+        if (userDTO.getPassword() != null) {
+            existingUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        }
+        if (userDTO.getRoles() != null) {
+            Set<Role> roles = new HashSet<>();
+            for (String roleName : userDTO.getRoles()) {
+                Role role = new Role();
+                role.setName(roleName);
+                roles.add(role);
+            }
+            existingUser.setRoles(roles);
+        }
+
+        // Save the updated user
+        User updatedUser = userRepository.save(existingUser);
+        log.info("User updated successfully: {}", updatedUser);
+
+        // Convert the updated user to a DTO and return it
+        return Optional.of(new UserDTO(
+                updatedUser.getId(),
+                updatedUser.getName(),
+                updatedUser.getEmail(),
+                updatedUser.getContactNo(),
+                null, // Password is not returned in the DTO
+                updatedUser.getRoles().stream()
+                        .map(Role::getName)
+                        .collect(Collectors.toSet())
+        ));
+    }
     public boolean deleteUser(int id) {
         log.info("Deleting user with ID: {}", id);
 

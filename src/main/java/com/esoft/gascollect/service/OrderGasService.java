@@ -51,14 +51,26 @@ public class OrderGasService {
     }
 
     public OrderGasDTO updateOrderGas(int id, OrderGasDTO orderGasDTO) {
+        // Find the existing OrderGas by ID
         OrderGas orderGas = orderGasRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("OrderGas not found with id: " + id));
-        BeanUtils.copyProperties(orderGasDTO, orderGas, "id");
 
+//        if (orderGasDTO.getGasId() != 0) {
+//            orderGas.setId(orderGasDTO.getGasId());
+//        }
+        if (orderGasDTO.getQuantity() != 0) {
+            orderGas.setQuantity(orderGasDTO.getQuantity());
+        }
+
+        // Save the updated OrderGas
         OrderGas updatedOrderGas = orderGasRepository.save(orderGas);
 
+        // Convert the updated OrderGas to a DTO and return it
         OrderGasDTO updatedOrderGasDTO = new OrderGasDTO();
-        BeanUtils.copyProperties(updatedOrderGas, updatedOrderGasDTO);
+        updatedOrderGasDTO.setId(updatedOrderGas.getId());
+        updatedOrderGasDTO.setGasId(updatedOrderGas.getId());
+        updatedOrderGasDTO.setQuantity(updatedOrderGas.getQuantity());
+
         return updatedOrderGasDTO;
     }
 

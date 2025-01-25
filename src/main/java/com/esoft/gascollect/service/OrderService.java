@@ -294,36 +294,77 @@ public class OrderService {
     }
 
     public OrderDTO updateOrderStatus(int id, OrderDTO orderDTO) {
+        // Find the existing order by ID
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
-        BeanUtils.copyProperties(orderDTO, order, "id");
 
+        if (orderDTO.getStatus() != null) {
+            order.setStatus(orderDTO.getStatus());
+        }
+        if (orderDTO.getTokenNumber() != null) {
+            order.setTokenNumber(orderDTO.getTokenNumber());
+        }
 
+        // Save the updated order
         Order updatedOrder = orderRepository.save(order);
+
+        // Convert the updated order to a DTO and return it
         OrderDTO updatedOrderDTO = new OrderDTO();
-        BeanUtils.copyProperties(updatedOrder, updatedOrderDTO);
+        updatedOrderDTO.setId(updatedOrder.getId());
+        updatedOrderDTO.setStatus(updatedOrder.getStatus());
+        updatedOrderDTO.setTokenNumber(updatedOrder.getTokenNumber());
+        updatedOrderDTO.setUserId(updatedOrder.getUser().getId());
+        updatedOrderDTO.setDeliveryScheduleId(updatedOrder.getDeliverySchedule() != null ? updatedOrder.getDeliverySchedule().getId() : null);
+        updatedOrderDTO.setOutletId(updatedOrder.getOutlet().getId());
+        updatedOrderDTO.setOrderGasList(updatedOrder.getOrderGasList().stream()
+                .map(orderGas -> new OrderGasDTO(orderGas.getId(), orderGas.getGas().getId(), orderGas.getQuantity()))
+                .collect(Collectors.toList()));
+
         return updatedOrderDTO;
     }
 
     public OrderDTO updateOrder(int id, OrderDTO orderDTO) {
+        // Find the existing order by ID
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
-        BeanUtils.copyProperties(orderDTO, order, "id");
 
-        // Update associated OrderGas items
-        for (OrderGasDTO orderGasDTO : orderDTO.getOrderGasList()) {
-            OrderGas orderGas = orderGasRepository.findById(orderGasDTO.getId())
-                    .orElseThrow(() -> new RuntimeException("OrderGas not found with id: " + orderGasDTO.getId()));
-            orderGas.setQuantity(orderGasDTO.getQuantity());
-            orderGasRepository.save(orderGas);
+        // Update only the fields that are provided in the DTO
+        if (orderDTO.getStatus() != null) {
+            order.setStatus(orderDTO.getStatus());
+        }
+        if (orderDTO.getTokenNumber() != null) {
+            order.setTokenNumber(orderDTO.getTokenNumber());
         }
 
+        // Update associated OrderGas items if provided
+        if (orderDTO.getOrderGasList() != null) {
+            for (OrderGasDTO orderGasDTO : orderDTO.getOrderGasList()) {
+                OrderGas orderGas = orderGasRepository.findById(orderGasDTO.getId())
+                        .orElseThrow(() -> new RuntimeException("OrderGas not found with id: " + orderGasDTO.getId()));
+                if (orderGasDTO.getQuantity() != 0) {
+                    orderGas.setQuantity(orderGasDTO.getQuantity());
+                }
+                orderGasRepository.save(orderGas);
+            }
+        }
+
+        // Save the updated order
         Order updatedOrder = orderRepository.save(order);
+
+        // Convert the updated order to a DTO and return it
         OrderDTO updatedOrderDTO = new OrderDTO();
-        BeanUtils.copyProperties(updatedOrder, updatedOrderDTO);
+        updatedOrderDTO.setId(updatedOrder.getId());
+        updatedOrderDTO.setStatus(updatedOrder.getStatus());
+        updatedOrderDTO.setTokenNumber(updatedOrder.getTokenNumber());
+        updatedOrderDTO.setUserId(updatedOrder.getUser().getId());
+        updatedOrderDTO.setDeliveryScheduleId(updatedOrder.getDeliverySchedule() != null ? updatedOrder.getDeliverySchedule().getId() : null);
+        updatedOrderDTO.setOutletId(updatedOrder.getOutlet().getId());
+        updatedOrderDTO.setOrderGasList(updatedOrder.getOrderGasList().stream()
+                .map(orderGas -> new OrderGasDTO(orderGas.getId(), orderGas.getGas().getId(), orderGas.getQuantity()))
+                .collect(Collectors.toList()));
+
         return updatedOrderDTO;
     }
-
     public void deleteOrder(int id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
