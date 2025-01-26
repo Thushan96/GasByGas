@@ -1,5 +1,6 @@
 package com.esoft.gascollect.controller;
 
+import com.esoft.gascollect.dto.AuthResponseDTO;
 import com.esoft.gascollect.entity.User;
 import com.esoft.gascollect.security.JwtUtil;
 import com.esoft.gascollect.service.UserService;
@@ -24,18 +25,23 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginRequest loginRequest) {
         Optional<User> userOptional = userService.findByEmail(loginRequest.getEmail());
 
         if (userOptional.isEmpty()) {
-            return ResponseEntity.status(401).body("Invalid username or password");
+            return ResponseEntity.status(401).body(null);
         }
 
         User user = userOptional.get();
         if (!userService.validatePassword(loginRequest.getPassword(), user.getPassword())) {
-            return ResponseEntity.status(401).body("Invalid username or password");
+            return ResponseEntity.status(401).body(null);
         }
         String token = jwtUtil.generateToken(user.getEmail(), new HashMap<>());
-        return ResponseEntity.ok(token);
+        String role = user.getRoles().stream()
+                .map(r -> r.getName().replace("ROLE_", ""))
+                .findFirst()
+                .orElse("UNKNOWN");
+        AuthResponseDTO responseDTO=new AuthResponseDTO(token, role);
+        return ResponseEntity.ok(responseDTO);
     }
 }
