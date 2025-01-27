@@ -37,11 +37,12 @@ public class AuthController {
             return ResponseEntity.status(401).body(null);
         }
         String token = jwtUtil.generateToken(user.getEmail(), new HashMap<>());
+        String userId=String.valueOf(user.getId());
         String role = user.getRoles().stream()
                 .map(r -> r.getName().replace("ROLE_", ""))
                 .findFirst()
                 .orElse("UNKNOWN");
-        AuthResponseDTO responseDTO=new AuthResponseDTO(token, role);
+        AuthResponseDTO responseDTO=new AuthResponseDTO(token, role ,userId);
         return ResponseEntity.ok(responseDTO);
     }
 }
