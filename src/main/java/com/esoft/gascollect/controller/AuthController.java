@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/auth")
 public class AuthController {
 
