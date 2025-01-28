@@ -125,18 +125,12 @@ public class UserService {
 
         // Check permissions (if applicable)
         String username = getAuthenticatedUser();
-        if (username != null && hasAccessToUser(id, username)) {
+        if (username != null && !hasAccessToUser(id, username)) {
             log.warn("User {} does not have permission to update user ID {}", username, id);
             return Optional.empty();
         }
 
         // Check if the user exists
-        if (!userRepository.existsById(id)) {
-            log.warn("User with ID {} not found. Update aborted.", id);
-            return Optional.empty();
-        }
-
-        // Fetch the existing user
         Optional<User> existingUserOpt = userRepository.findById(id);
         if (!existingUserOpt.isPresent()) {
             log.warn("User with ID {} not found. Update aborted.", id);
@@ -149,7 +143,7 @@ public class UserService {
         if (userDTO.getName() != null) {
             existingUser.setName(userDTO.getName());
         }
-        if (userDTO.getContactNo()!=0) {
+        if (userDTO.getContactNo() != 0) {
             existingUser.setContactNo(userDTO.getContactNo());
         }
         if (userDTO.getPassword() != null) {
@@ -158,8 +152,13 @@ public class UserService {
         if (userDTO.getRoles() != null) {
             Set<Role> roles = new HashSet<>();
             for (String roleName : userDTO.getRoles()) {
-                Role role = new Role();
-                role.setName(roleName);
+                // Fetch the role from the database or create a new one if it doesn't exist
+                Role role = roleRepository.findByName(roleName)
+                        .orElseGet(() -> {
+                            Role newRole = new Role();
+                            newRole.setName(roleName);
+                            return roleRepository.save(newRole); // Save the new role to make it persistent
+                        });
                 roles.add(role);
             }
             existingUser.setRoles(roles);
@@ -181,6 +180,7 @@ public class UserService {
                         .collect(Collectors.toSet())
         ));
     }
+
     public boolean deleteUser(int id) {
         log.info("Deleting user with ID: {}", id);
 

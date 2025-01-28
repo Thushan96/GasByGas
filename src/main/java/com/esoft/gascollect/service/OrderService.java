@@ -146,10 +146,9 @@ public class OrderService {
 
 
     public OrderDTO createOrderWithDeliveryRequest(OrderDTO orderDTO) {
-        Order order = new Order();
         String randomToken = UUID.randomUUID().toString();
         orderDTO.setTokenNumber(randomToken);
-        BeanUtils.copyProperties(orderDTO, order);
+        Order order=DTOtoEntity(orderDTO);
 
         // Fetch the User entity using userId
         User user = userRepository.findById(orderDTO.getUserId())
@@ -428,4 +427,70 @@ public class OrderService {
         }
         return null;
     }
+
+    public Order DTOtoEntity(OrderDTO orderDTO) {
+        if (orderDTO != null) {
+            Order order = new Order();
+
+            // Set ID
+            if (orderDTO.getId() != 0) {
+                order.setId(orderDTO.getId());
+            }
+
+            // Set status
+            if (orderDTO.getStatus() != null) {
+                order.setStatus(orderDTO.getStatus());
+            }
+
+            // Set token number
+            if (orderDTO.getTokenNumber() != null) {
+                order.setTokenNumber(orderDTO.getTokenNumber());
+            }
+
+            // Set user
+            if (orderDTO.getUserId() != 0) {
+                User user = new User(); // Create a new User entity
+                user.setId(orderDTO.getUserId()); // Set the user ID from the DTO
+                order.setUser(user);
+            }
+
+            // Set delivery schedule
+            if (orderDTO.getDeliveryScheduleId() != null) {
+                DeliverySchedule deliverySchedule = new DeliverySchedule(); // Create a new DeliverySchedule entity
+                deliverySchedule.setId(orderDTO.getDeliveryScheduleId()); // Set the delivery schedule ID from the DTO
+                order.setDeliverySchedule(deliverySchedule);
+            }
+
+            // Set outlet
+            if (orderDTO.getOutletId() != null) {
+                Outlet outlet = new Outlet(); // Create a new Outlet entity
+                outlet.setId(orderDTO.getOutletId()); // Set the outlet ID from the DTO
+                order.setOutlet(outlet);
+            }
+
+            // Set order gas list
+            if (orderDTO.getOrderGasList() != null) {
+                List<OrderGas> orderGasList = new ArrayList<>();
+                for (OrderGasDTO orderGasDTO : orderDTO.getOrderGasList()) {
+                    OrderGas orderGas = new OrderGas(); // Create a new OrderGas entity
+                    orderGas.setId(orderGasDTO.getId());
+                    Gas gas = new Gas(); // Create a new Gas entity
+                    gas.setId(orderGasDTO.getGasId()); // Set the gas ID from the DTO
+                    orderGas.setGas(gas);
+                    orderGas.setQuantity(orderGasDTO.getQuantity());
+                    orderGasList.add(orderGas);
+                }
+                order.setOrderGasList(orderGasList);
+            }
+
+            // Set total
+            if (orderDTO.getTotal() != 0) {
+                order.setTotal(orderDTO.getTotal());
+            }
+
+            return order;
+        }
+        return null;
+    }
+
 }
