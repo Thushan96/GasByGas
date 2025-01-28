@@ -12,4 +12,8 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order,Integer> {
     @Query("SELECT o FROM Order o WHERE o.status = :status")
     List<Order> findAllByStatus(@Param("status") String status);
+
+    @Query("SELECT o.outlet, o FROM Order o WHERE o.status = :status")
+    List<Object[]> findOrdersByStatusGroupedByOutlet(@Param("status") String status);
+
 }

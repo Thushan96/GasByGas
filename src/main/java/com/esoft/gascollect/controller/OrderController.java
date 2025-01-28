@@ -2,6 +2,7 @@ package com.esoft.gascollect.controller;
 
 import com.esoft.gascollect.dto.OrderDTO;
 import com.esoft.gascollect.dto.OrderRequestDTO;
+import com.esoft.gascollect.dto.OutletOrderDTO;
 import com.esoft.gascollect.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +55,12 @@ public class OrderController {
     @GetMapping("/requested")
     public ResponseEntity<List<OrderDTO>> getAllRequestedOrders() {
         List<OrderDTO> orders = orderService.getAllRequestedOrders();
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/requested/outlet")
+    public ResponseEntity<List<OutletOrderDTO>> getAllRequestedOutletOrdersByOutlet() {
+        List<OutletOrderDTO> orders = orderService.getOrdersByStatusGroupedByOutlet();
         return ResponseEntity.ok(orders);
     }
 

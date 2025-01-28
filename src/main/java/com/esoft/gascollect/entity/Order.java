@@ -36,4 +36,7 @@ public class Order {
     @JoinColumn(name = "outlet_id", nullable = false)
     @JsonBackReference  // Avoid infinite recursion in the back reference
     private Outlet outlet;
+
+    private int total;
+
 }

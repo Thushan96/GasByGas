@@ -2,6 +2,7 @@ package com.esoft.gascollect.service;
 
 import com.esoft.gascollect.dto.OrderDTO;
 import com.esoft.gascollect.dto.OrderGasDTO;
+import com.esoft.gascollect.dto.OutletOrderDTO;
 import com.esoft.gascollect.entity.*;
 import com.esoft.gascollect.repository.*;
 import lombok.extern.slf4j.Slf4j;
@@ -11,9 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -97,9 +96,7 @@ public class OrderService {
         outletRepository.save(outlet);
 
         // Convert saved Order back to DTO
-        OrderDTO savedOrderDTO = new OrderDTO();
-        BeanUtils.copyProperties(savedOrder, savedOrderDTO);
-        return savedOrderDTO;
+        return EntityToDTO(savedOrder);
     }
 
     public OrderDTO sellRequestedOrder(int id) {
@@ -144,9 +141,7 @@ public class OrderService {
         }
 
         // Convert the updated order to DTO and return
-        OrderDTO orderDTO = new OrderDTO();
-        BeanUtils.copyProperties(order, orderDTO);
-        return orderDTO;
+        return  EntityToDTO(order);
     }
 
 
@@ -234,9 +229,7 @@ public class OrderService {
         }
         Order updatedOrder=orderRepository.save(order);
         // Convert saved Order back to DTO
-        OrderDTO savedOrderDTO = new OrderDTO();
-        BeanUtils.copyProperties(updatedOrder, savedOrderDTO);
-        return savedOrderDTO;
+        return  EntityToDTO(updatedOrder);
     }
 
 
@@ -272,25 +265,44 @@ public class OrderService {
     public OrderDTO getOrderById(int id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
-        OrderDTO orderDTO = new OrderDTO();
-        BeanUtils.copyProperties(order, orderDTO);
-        return orderDTO;
+        return  EntityToDTO(order);
     }
 
     public List<OrderDTO> getAllOrders() {
-        return orderRepository.findAll().stream().map(order -> {
-            OrderDTO orderDTO = new OrderDTO();
-            BeanUtils.copyProperties(order, orderDTO);
-            return orderDTO;
-        }).collect(Collectors.toList());
+        return orderRepository.findAll().stream().map(this::EntityToDTO).collect(Collectors.toList());
     }
 
     public List<OrderDTO> getAllRequestedOrders() {
-        return orderRepository.findAllByStatus("Pending").stream().map(order -> {
-            OrderDTO orderDTO = new OrderDTO();
-            BeanUtils.copyProperties(order, orderDTO);
-            return orderDTO;
-        }).collect(Collectors.toList());
+        return orderRepository.findAllByStatus("Requested").stream().map(this ::EntityToDTO).collect(Collectors.toList());
+    }
+
+    public List<OutletOrderDTO> getOrdersByStatusGroupedByOutlet() {
+        List<Object[]> results = orderRepository.findOrdersByStatusGroupedByOutlet("Requested");
+
+        // Create a list to hold the grouped data
+        List<OutletOrderDTO> groupedOrders = new ArrayList<>();
+
+        // Map each outlet and its orders
+        Map<Outlet, List<OrderDTO>> outletOrdersMap = new HashMap<>();
+        for (Object[] result : results) {
+            Outlet outlet = (Outlet) result[0];
+            Order order = (Order) result[1];
+
+            OrderDTO orderDTO = EntityToDTO(order);
+
+            outletOrdersMap.computeIfAbsent(outlet, k -> new ArrayList<>()).add(orderDTO);
+        }
+
+        // Convert the map to a list of OutletOrderDTO
+        for (Map.Entry<Outlet, List<OrderDTO>> entry : outletOrdersMap.entrySet()) {
+            Outlet outlet = entry.getKey();
+            List<OrderDTO> orders = entry.getValue();
+
+            // Create an OutletOrderDTO and add it to the list
+            groupedOrders.add(new OutletOrderDTO(outlet.getId(), outlet.getName(), outlet.getLocation(), orders));
+        }
+
+        return groupedOrders;
     }
 
     public OrderDTO updateOrderStatus(int id, OrderDTO orderDTO) {
@@ -304,6 +316,7 @@ public class OrderService {
         if (orderDTO.getTokenNumber() != null) {
             order.setTokenNumber(orderDTO.getTokenNumber());
         }
+
 
         // Save the updated order
         Order updatedOrder = orderRepository.save(order);
@@ -334,6 +347,9 @@ public class OrderService {
         }
         if (orderDTO.getTokenNumber() != null) {
             order.setTokenNumber(orderDTO.getTokenNumber());
+        }
+        if (orderDTO.getTotal() != 0) {
+            order.setTotal(orderDTO.getTotal());
         }
 
         // Update associated OrderGas items if provided
@@ -375,5 +391,41 @@ public class OrderService {
         }
 
         orderRepository.delete(order);
+    }
+
+    public OrderDTO EntityToDTO(Order order) {
+        if(order != null) {
+            OrderDTO orderDTO = new OrderDTO();
+            if (order.getId()!=0){
+                orderDTO.setId(order.getId());
+            }
+            if (order.getStatus() != null) {
+                orderDTO.setStatus(order.getStatus());
+            }
+            if (order.getTokenNumber() != null) {
+                orderDTO.setTokenNumber(order.getTokenNumber());
+            }
+            if (order.getUser() != null) {
+                orderDTO.setUserId(order.getUser().getId());
+            }
+            if (order.getDeliverySchedule() != null) {
+                orderDTO.setDeliveryScheduleId(order.getDeliverySchedule().getId());
+            }
+            if (order.getOutlet() != null) {
+                orderDTO.setOutletId(order.getOutlet().getId());
+            }
+            if (order.getOrderGasList() != null) {
+                List<OrderGasDTO> orderGasDTOList = new ArrayList<>();
+                for (OrderGas orderGas : order.getOrderGasList()) {
+                    orderGasDTOList.add(new OrderGasDTO(orderGas.getId(), orderGas.getGas().getId(), orderGas.getQuantity()));
+                }
+                orderDTO.setOrderGasList(orderGasDTOList);
+            }
+            if(order.getTotal()!=0){
+                orderDTO.setTotal(order.getTotal());
+            }
+            return orderDTO;
+        }
+        return null;
     }
 }

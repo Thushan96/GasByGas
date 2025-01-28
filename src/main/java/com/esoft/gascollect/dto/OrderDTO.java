@@ -19,4 +19,5 @@ public class OrderDTO {
     private Integer deliveryScheduleId; // Nullable for immediate stock orders
     private Integer outletId; // Add this field for linking the order to an outlet
     private List<OrderGasDTO> orderGasList; // List of gas items with quantity and other details
+    private int total;
 }
