@@ -3,7 +3,10 @@ package com.esoft.gascollect.service;
 import com.esoft.gascollect.dto.GasDTO;
 import com.esoft.gascollect.entity.Gas;
 import com.esoft.gascollect.repository.GasRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,9 @@ import java.util.stream.Collectors;
 @Service
 public class GasService {
     private final GasRepository gasRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     public GasService(final GasRepository gasRepository) {
@@ -81,5 +87,20 @@ public class GasService {
         gasRepository.delete(gas);
     }
 
+    @Transactional
+    public GasDTO updateStockToZero(int id) {
+        // Fetch the gas entity by ID
+        Gas gas = gasRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Gas entity not found for ID: " + id));
+
+        // Update the stock to zero
+        gas.setStock(0);
+
+        // Save the updated entity
+        Gas updatedGasEntity = gasRepository.save(gas);
+
+        // Convert to DTO and return
+        return objectMapper.convertValue(updatedGasEntity, GasDTO.class);
+    }
 
 }
