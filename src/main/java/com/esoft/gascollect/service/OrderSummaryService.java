@@ -24,6 +24,17 @@ public class OrderSummaryService {
         return orderSummaryDTO;
     }
 
+    public List<OrderSummaryDTO> searchByUserId(Long userId) {
+        List<OrderSummary> orders = orderSummaryRepository.findByUserId(userId);
+        return orders.stream()
+                .map(order -> {
+                    OrderSummaryDTO dto = new OrderSummaryDTO();
+                    BeanUtils.copyProperties(order, dto);
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
     public List<OrderSummaryDTO> getAllOrders() {
         List<OrderSummary> orders = orderSummaryRepository.findAll();
         return orders.stream()

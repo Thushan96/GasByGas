@@ -22,6 +22,12 @@ public class OrderSummaryController {
         return ResponseEntity.ok(createdOrder);
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<OrderSummaryDTO>> searchByOrderUserId(@PathVariable Long userId) {
+        List<OrderSummaryDTO> orders = orderSummaryService.searchByUserId(userId);
+        return ResponseEntity.ok(orders);
+    }
+
     @GetMapping
     public ResponseEntity<List<OrderSummaryDTO>> getAllOrders() {
         List<OrderSummaryDTO> orders = orderSummaryService.getAllOrders();

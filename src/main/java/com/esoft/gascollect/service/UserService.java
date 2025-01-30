@@ -214,9 +214,9 @@ public class UserService {
         if (principal instanceof UserDetails) {
             // If the principal is a UserDetails instance
             return ((UserDetails) principal).getUsername();
-        } else if (principal instanceof com.esoft.gascollect.entity.User) {
+        } else if (principal instanceof User) {
             // If the principal is the custom User entity
-            return ((com.esoft.gascollect.entity.User) principal).getName();
+            return ((User) principal).getName();
         }
 
         return null;

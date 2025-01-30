@@ -49,4 +49,11 @@ public class GasController {
         gasService.deleteGas(id);
         return ResponseEntity.noContent().build();
     }
+    // ...existing code...
+
+    @PutMapping("/{id}/empty-stock")
+    public ResponseEntity<GasDTO> updateStockToZero(@PathVariable int id) {
+        GasDTO updatedGas = gasService.updateStockToZero(id);
+        return ResponseEntity.ok(updatedGas);
+    }
 }
