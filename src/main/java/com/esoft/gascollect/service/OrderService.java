@@ -21,21 +21,32 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderGasRepository orderGasRepository;
-    private final GasRepository gasRepository;  // Inject the GasRepository
+    private final GasRepository gasRepository;
     private final UserRepository userRepository;
     private final OutletRepository outletRepository;
     private final DelieverySheduleRepository deliveryScheduleRepository;
-    private final DeliveryGasScheduleRepository deliveryGasScheduleRepository ;
+    private final DeliveryGasScheduleRepository deliveryGasScheduleRepository;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository, OrderGasRepository orderGasRepository, GasRepository gasRepository, UserRepository userRepository, OutletRepository outletRepository, DelieverySheduleRepository delieverySheduleRepository, DelieverySheduleRepository deliveryScheduleRepository, DelieverySheduleRepository eliveryScheduleRepository, DeliveryGasScheduleRepository deliveryGasScheduleRepository) {
+    public OrderService(
+            OrderRepository orderRepository,
+            OrderGasRepository orderGasRepository,
+            GasRepository gasRepository,
+            UserRepository userRepository,
+            OutletRepository outletRepository,
+            DelieverySheduleRepository deliveryScheduleRepository,
+            DeliveryGasScheduleRepository deliveryGasScheduleRepository) {
         this.orderRepository = orderRepository;
         this.orderGasRepository = orderGasRepository;
-        this.gasRepository = gasRepository;  // Initialize the GasRepository
+        this.gasRepository = gasRepository;
         this.userRepository = userRepository;
         this.outletRepository = outletRepository;
         this.deliveryScheduleRepository = deliveryScheduleRepository;
         this.deliveryGasScheduleRepository = deliveryGasScheduleRepository;
+    }
+
+    public Integer getLastOrderId() {
+        return orderRepository.findLastOrderId().orElse(null);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -45,13 +56,11 @@ public class OrderService {
         orderDTO.setTokenNumber(randomToken);
         BeanUtils.copyProperties(orderDTO, order);
 
-        // Fetch the User entity using userId
         User user = userRepository.findById(orderDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + orderDTO.getUserId()));
         order.setUser(user);
 
 
-        // Fetch the Outlet entity using outletId
         Outlet outlet = outletRepository.findById(orderDTO.getOutletId())
                 .orElseThrow(() -> new RuntimeException("Outlet with id not found: " + orderDTO.getOutletId()));
         System.out.println("outlet--------------------------------------: " + outlet);
@@ -427,6 +436,8 @@ public class OrderService {
         }
         return null;
     }
+
+
 
     public Order DTOtoEntity(OrderDTO orderDTO) {
         if (orderDTO != null) {

@@ -8,7 +8,6 @@ import lombok.Setter;
 @Getter
 public class LoginRequest {
 
-    // Getters and Setters
     @NotNull(message = "email cannot be null")
     private String email;
 

@@ -40,6 +40,17 @@ public class OrderController {
         return ResponseEntity.ok(createdOrder);
     }
 
+    @GetMapping("/last-id")
+    public ResponseEntity<?> getLastOrderId() {
+        Integer lastOrderId = orderService.getLastOrderId();
+
+        if (lastOrderId != null) {
+            return ResponseEntity.ok(lastOrderId);
+        } else {
+            return ResponseEntity.ok("No orders found.");
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable int id) {
         OrderDTO order = orderService.getOrderById(id);
