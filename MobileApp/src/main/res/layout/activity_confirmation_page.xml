@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/primary"
+    tools:context=".ConfirmationPage">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        android:textColor="#FFFFFF"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:text="Payment Status"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:gravity="center"
+        android:text="GasByGas LP Gas"
+        android:letterSpacing=".1"
+        android:textColor="#FFFFFF"
+        android:textSize="10sp"
+        android:layout_marginTop="10dp"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="60dp"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/resultGif"
+            android:layout_width="260dp"
+            android:layout_height="200dp"
+            android:src="@drawable/correct_icon"
+            android:layout_marginTop="20dp"/>
+
+        <TextView
+            android:id="@+id/passFailTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Congratuiations"
+            android:letterSpacing=".1"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:textSize="30sp"
+            android:layout_marginTop="10dp"/>
+
+
+        <TextView
+            android:id="@+id/passFailTV2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp"
+            android:letterSpacing=".1"
+            android:text="Youre Payment is successfull"
+            android:textSize="16sp"
+            android:textColor="#CCFFFFFF"/>
+
+        <TextView
+            android:layout_marginTop="30dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:letterSpacing=".2"
+            android:textColor="#80FFFFFF"
+            android:text="Order Status"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/scoreTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:letterSpacing=".2"
+                android:text="Panding"
+                android:textColor="@color/color3"
+                android:textSize="15sp"
+                android:textStyle="bold"/>
+
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_marginEnd="30dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginStart="30dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/shareBtn"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginEnd="15dp"
+                android:layout_weight="1"
+                android:background="@drawable/round_back_white_10"
+                android:text="Share Recipt"
+                android:textColor="#000000"
+                android:textAllCaps="false"/>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/mainMenuBtn"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_marginStart="15dp"
+                android:layout_weight="1"
+                android:background="@drawable/round_back_secondary_10"
+                android:text="Shop Again"
+                android:textAllCaps="false"
+                android:textColor="#000000"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primary"
+    android:orientation="vertical"
+    tools:context=".UserSettingActivity">
+
+    <!-- Header Layout -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/backButton"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/back_btn"
+            android:padding="14dp"
+            android:contentDescription="Back Button" />
+
+    </RelativeLayout>
+
+    <!-- Scrollable Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- User Name -->
+            <TextView
+                android:id="@+id/userNameTextView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:text="Select Branch Location"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <!-- Welcome Text -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Choose Correct Location"
+                android:textColor="#CCFFFFFF"
+                android:textSize="12sp" />
+
+            <RadioGroup
+                android:id="@+id/branchRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="20dp">
+
+                <RadioButton
+                    android:id="@+id/radioButtonGalle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="1. Galle Branch"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="30dp"
+                    android:background="@drawable/round_back_white_10_20"
+                    android:padding="15dp" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonColombo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="2. Colombo Branch"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/round_back_white_10_20"
+                    android:padding="15dp" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonKandy"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="3. Kandy Branch"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/round_back_white_10_20"
+                    android:padding="15dp" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonGampaha"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="4. Gampaha Branch"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/round_back_white_10_20"
+                    android:padding="15dp" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonMatara"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="5. Matara Branch"
+                    android:background="@drawable/round_back_white_10_20"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="20dp"
+                    android:padding="15dp" />
+            </RadioGroup>
+
+
+
+
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnNext"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:padding="5dp"
+                android:layout_marginStart="50dp"
+                android:layout_marginEnd="50dp"
+                android:layout_marginTop="60dp"
+                android:text="Finish Account Create"
+                android:textColor="#FFFFFF"
+                android:textAllCaps="false"
+                android:background="@drawable/start_menu_button"/>
+
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
