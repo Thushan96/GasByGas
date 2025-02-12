@@ -2,8 +2,10 @@ package com.esoft.gascollect.service;
 
 import com.esoft.gascollect.dto.OrderDTO;
 import com.esoft.gascollect.dto.OrderGasDTO;
+import com.esoft.gascollect.dto.OrderTokenDTO;
 import com.esoft.gascollect.dto.OutletOrderDTO;
 import com.esoft.gascollect.entity.*;
+import com.esoft.gascollect.exception.ResourceNotFoundException;
 import com.esoft.gascollect.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -53,7 +55,9 @@ public class OrderService {
     public OrderDTO createOrder(OrderDTO orderDTO) {
         Order order = new Order();
         String randomToken = UUID.randomUUID().toString();
-        orderDTO.setTokenNumber(randomToken);
+        if(orderDTO.getTokenNumber()==null){
+            orderDTO.setTokenNumber(randomToken);
+        }
         BeanUtils.copyProperties(orderDTO, order);
 
         User user = userRepository.findById(orderDTO.getUserId())
@@ -65,7 +69,8 @@ public class OrderService {
                 .orElseThrow(() -> new RuntimeException("Outlet with id not found: " + orderDTO.getOutletId()));
         System.out.println("outlet--------------------------------------: " + outlet);
         order.setOutlet(outlet);
-        Order savedOrder = orderRepository.save(order);
+        Order savedOrder=orderRepository.save(order);
+        int total = 0;
 
         // Process OrderGas items and adjust outlet stock
         for (OrderGasDTO orderGasDTO : orderDTO.getOrderGasList()) {
@@ -75,6 +80,7 @@ public class OrderService {
             // Fetch the Gas entity
             Gas gas = gasRepository.findById(orderGasDTO.getGasId())
                     .orElseThrow(() -> new RuntimeException("Gas not found with id: " + orderGasDTO.getGasId()));
+            total+=gas.getPrice()*orderGasDTO.getQuantity();
 
             orderGas.setGas(gas);
             orderGas.setQuantity(orderGasDTO.getQuantity());
@@ -100,12 +106,14 @@ public class OrderService {
                 throw new RuntimeException("Gas ID " + gas.getId() + " is not available in outlet stock.");
             }
         }
+        order.setTotal(order.getTotal()!=0?order.getTotal():total);
+        Order savedOrders = orderRepository.save(order);
 
         // Save the updated outlet stock
         outletRepository.save(outlet);
 
         // Convert saved Order back to DTO
-        return EntityToDTO(savedOrder);
+        return EntityToDTO(savedOrders);
     }
 
     public OrderDTO sellRequestedOrder(int id) {
@@ -156,7 +164,9 @@ public class OrderService {
 
     public OrderDTO createOrderWithDeliveryRequest(OrderDTO orderDTO) {
         String randomToken = UUID.randomUUID().toString();
-        orderDTO.setTokenNumber(randomToken);
+        if(orderDTO.getTokenNumber()==null){
+            orderDTO.setTokenNumber(randomToken);
+        }
         Order order=DTOtoEntity(orderDTO);
 
         // Fetch the User entity using userId
@@ -268,13 +278,17 @@ public class OrderService {
                 .findFirst();
     }
 
-
+    public OrderTokenDTO generateToken(){
+        OrderTokenDTO orderTokenDTO=new OrderTokenDTO(UUID.randomUUID().toString());
+        return  orderTokenDTO;
+    }
 
     public OrderDTO getOrderById(int id) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
-        return  EntityToDTO(order);
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + id));
+        return EntityToDTO(order);
     }
+
 
     public List<OrderDTO> getAllOrders() {
         return orderRepository.findAll().stream().map(this::EntityToDTO).collect(Collectors.toList());

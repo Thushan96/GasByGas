@@ -2,6 +2,7 @@ package com.esoft.gascollect.service;
 
 import com.esoft.gascollect.dto.DeliveryCompletionDTO;
 import com.esoft.gascollect.dto.DeliveryGasDTO;
+import com.esoft.gascollect.dto.DeliverySheduleDTO;
 import com.esoft.gascollect.dto.OrderDTO;
 import com.esoft.gascollect.entity.*;
 import com.esoft.gascollect.repository.*;
@@ -12,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -38,6 +41,7 @@ public class DeliveryScheduleService {
 
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity completeDeliverySchedule(DeliveryCompletionDTO deliveryCompletionDTO) {
+        System.out.println("complete delivery schedule-------------------------" + deliveryCompletionDTO);
         // Fetch the DeliverySchedule
         DeliverySchedule deliverySchedule = deliveryScheduleRepository.findById(deliveryCompletionDTO.getDeliveryScheduleId())
                 .orElseThrow(() -> new RuntimeException("DeliverySchedule not found with id: " + deliveryCompletionDTO.getDeliveryScheduleId()));
@@ -142,5 +146,37 @@ public class DeliveryScheduleService {
 //                "Your delivery is scheduled for " + "yo yoooooo" + ".\n\n" +
 //                "Thank you for choosing our service!";
 //        twilioService.sendSms("+94770347469", message);
+    }
+
+    public List<DeliverySheduleDTO> getfilteredDeliverySchedule(){
+        List<DeliverySchedule> deliverySchedules=deliveryScheduleRepository.findAllByOrderByIdDesc();
+        List<DeliverySheduleDTO> deliveryScheduleDTO=new ArrayList<>();
+        for (DeliverySchedule deliverySchedule : deliverySchedules) {
+            List<DeliveryScheduleGas> deliveryScheduleGases=deliveryGasScheduleRepository.findByDeliverySchedule_Id(deliverySchedule.getId());
+            System.out.println(deliveryScheduleGases);
+
+            Map<Integer, Integer> gasQuantityMap = deliveryScheduleGases.stream()
+                    .collect(Collectors.groupingBy(
+                            gas -> gas.getGas().getId(),  // Group by gasId
+                            Collectors.summingInt(DeliveryScheduleGas::getQuantity)  // Sum quantities
+                    ));
+            // ✅ Convert to List of DeliveryGasDTO
+            List<DeliveryGasDTO> deliveryGasDTOS = gasQuantityMap.entrySet().stream()
+                    .map(entry -> new DeliveryGasDTO(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
+
+            DeliverySheduleDTO dto = new DeliverySheduleDTO(
+                    deliverySchedule.getId(),
+                    deliverySchedule.getDeliveryDate(),
+                    deliverySchedule.getStatus(),
+                    deliverySchedule.getOutlet().getId(),
+                    deliveryGasDTOS.stream().mapToInt(DeliveryGasDTO::getQuantity).sum(), // Total Quantity
+                    deliveryGasDTOS
+            );
+
+            deliveryScheduleDTO.add(dto);
+
+        }
+        return deliveryScheduleDTO;
     }
 }

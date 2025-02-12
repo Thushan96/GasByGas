@@ -54,7 +54,7 @@ public class UserController {
 
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER','ADMIN', 'MANAGER')")
+//    @PreAuthorize("hasAnyRole('USER','ADMIN', 'MANAGER')")
     public ResponseEntity<UserDTO> getUser(@PathVariable int id) {
         Optional<UserDTO> user = userService.getUser(id);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());

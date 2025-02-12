@@ -2,6 +2,7 @@ package com.esoft.gascollect.controller;
 
 import com.esoft.gascollect.dto.OrderDTO;
 import com.esoft.gascollect.dto.OrderRequestDTO;
+import com.esoft.gascollect.dto.OrderTokenDTO;
 import com.esoft.gascollect.dto.OutletOrderDTO;
 import com.esoft.gascollect.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,11 @@ public class OrderController {
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable int id) {
         OrderDTO order = orderService.getOrderById(id);
         return ResponseEntity.ok(order);
+    }
+
+    @GetMapping("/generateToken")
+    public OrderTokenDTO generateToken() {
+        return orderService.generateToken();
     }
 
     @GetMapping

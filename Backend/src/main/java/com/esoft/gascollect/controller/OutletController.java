@@ -1,5 +1,6 @@
 package com.esoft.gascollect.controller;
 
+import com.esoft.gascollect.dto.GasInfoDto;
 import com.esoft.gascollect.dto.OutletDTO;
 import com.esoft.gascollect.dto.OutletReturnDTO;
 import com.esoft.gascollect.service.OutletService;
@@ -28,6 +29,12 @@ public class OutletController {
     @GetMapping
     public ResponseEntity<List<OutletReturnDTO>> getAllOutlets() {
         List<OutletReturnDTO> outlets = outletService.getAllOutlets();
+        return ResponseEntity.ok(outlets);
+    }
+
+    @GetMapping("/id/{id}")
+    public ResponseEntity<List<GasInfoDto>> getGaseByoutlet(@PathVariable int id) {
+        List<GasInfoDto> outlets = outletService.getGasByOutlet(id);
         return ResponseEntity.ok(outlets);
     }
 

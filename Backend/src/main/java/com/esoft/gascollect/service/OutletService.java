@@ -1,24 +1,31 @@
 package com.esoft.gascollect.service;
 
+import com.esoft.gascollect.dto.GasInfoDto;
 import com.esoft.gascollect.dto.OutletDTO;
 import com.esoft.gascollect.dto.OutletReturnDTO;
+import com.esoft.gascollect.entity.Gas;
 import com.esoft.gascollect.entity.Outlet;
+import com.esoft.gascollect.entity.OutletStock;
+import com.esoft.gascollect.repository.GasRepository;
 import com.esoft.gascollect.repository.OutletRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.Locale.filter;
 
 @Slf4j
 @Service
 public class OutletService {
 
     private final OutletRepository outletRepository;
+    private final GasRepository gasRepository;
 
-    public OutletService(OutletRepository outletRepository) {
+    public OutletService(OutletRepository outletRepository, GasRepository gasRepository) {
         this.outletRepository = outletRepository;
+        this.gasRepository = gasRepository;
     }
 
     public OutletReturnDTO createOutlet(OutletDTO outletDTO) {
@@ -36,6 +43,30 @@ public class OutletService {
         return outlets.stream()
                 .map(this::mapToReturnDTO)
                 .collect(Collectors.toList());
+    }
+
+    public List<GasInfoDto> getGasByOutlet(int outletId) {
+        Optional<Outlet> outletOptional = outletRepository.findById(outletId);
+        GasInfoDto gasInfoDto = new GasInfoDto();
+            if (outletOptional.isPresent()) {
+                Outlet outlet = outletOptional.get();
+                List<OutletStock> stockList = outlet.getStock(); // Get the stock list
+
+                return stockList.stream()
+                        .map(stock -> gasRepository.findById(stock.getGasId()) // Fetch Gas object
+                                .map(gas -> new GasInfoDto(
+                                        gas.getId(),
+                                        gas.getCapacity(),
+                                        gas.getPrice(),
+                                        stock.getQuantity()
+                                ))
+                                .orElse(null)
+                        )
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+            }
+
+            return Collections.emptyList();
     }
 
     public OutletReturnDTO getOutletById(int id) {
